@@ -7,6 +7,16 @@ class User < ApplicationRecord
   has_many :books, dependent: :destroy
   has_many :book_comments, dependent: :destroy
   has_many :favorites, dependent: :destroy
+
+  # フォローする側から中間テーブルへのアソシエーション
+  has_many :relationships, class_name: "Relationship", foreign_key: "follower_id", dependent: :destroy
+  # フォローする側からフォローされたユーザを取得する
+  has_many :followers, through: :relationships, source: :followed
+
+  # フォローされる側から中間テーブルへのアソシエーション
+  has_many :reverse_of_relationships, class_name: "Relationship", foreign_key: "followed_id", dependent: :destroy
+  # フォローされる側からフォローしているユーザを取得する
+  has_many :followed, through: :reverse_of_relationships, source: :follower
   has_one_attached :profile_image
 
   validates :name, length: { minimum: 2, maximum: 20 }, uniqueness: true
