@@ -1,7 +1,7 @@
 class RelationshipsController < ApplicationController
 
   def create
-    follower = current_user.relationships.built(followed_id: params[:user_id])
+    follower = current_user.relationships.build(followed_id: params[:user_id])
     follower.save
     redirect_to request.referrer || root_path
   end
