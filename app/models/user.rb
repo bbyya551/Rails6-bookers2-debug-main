@@ -18,10 +18,6 @@ class User < ApplicationRecord
   # フォローされる側からフォローしているユーザを取得する
   has_many :followed, through: :reverse_of_relationships, source: :follower
 
-  def is_followed_by?(user)
-    reverse_of_relationships.find_by(follower_id: user.id).present?
-  end
-
   has_one_attached :profile_image
 
   validates :name, length: { minimum: 2, maximum: 20 }, uniqueness: true
@@ -34,5 +30,23 @@ class User < ApplicationRecord
       profile_image.attach(io: File.open(file_path), filename: 'default-image.jpg', content_type: 'image/jpeg')
     end
     profile_image.variant(resize_to_limit: [width, height]).processed
+  end
+
+  def is_followed_by?(user)
+    reverse_of_relationships.find_by(follower_id: user.id).present?
+  end
+
+  def self.looks(search, word)
+    if search == "perfect_match"
+      @user = User.where("name LIKE?", "#{word}")
+    elsif search == "forward_match"
+      @user = User.where("name LIKE?", "#{word}%")
+    elsif search == "backward_match"
+      @user = User.where("name LIKE?", "%#{word}")
+    elsif search == "partial_match"
+      @user = User.where("name LIKE?", "%#{word}%")
+    else
+      @user = User.all
+    end
   end
 end
